@@ -1,3 +1,3 @@
 ## ansible-config-mgt
-* Connecting the github to the jenkins
+* Connect github to jenkins server
 ansible-configuration management
