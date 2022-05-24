@@ -1,44 +1,33 @@
- pipeline {
+pipeline {
     agent any
 
-  stages {
-    stage('Build') {
+    parameters {
+      string(name: 'inventory', defaultValue: 'dev',  description: 'This is the inventory file for the environment to deploy configuration')
+      string(name: 'tag', defaultValue: 'all',  description: 'Tags to run the ansible playbook against')
+    }
+    environment {
+      branch = 'feature/jenkinspipeline-stages'
+    }
+    stages {
+     stage('Clone repo') {
       steps {
-        script {
-          sh 'echo "Building Stage"'
-        }
+        git(branch: current_space, url: 'https://github.com/Damdev-95/ansible-config-mgt.git')
       }
-    }
-
-    stage('Test') {
+     }
+     
+     stage('Update ansible.cfg') {
       steps {
-        script {
-          sh 'echo "Testing Stage"'
-        }
+       sh "export ANSIBLE_CONFIG=${WORKSPACE}/deploy/ansible.cfg"
       }
-    }
-    
-    stage('Package') {
+     }
+     
+     stage('Run playbook') {
       steps {
-        script {
-          sh 'echo "Packaging Stage"'
-        }
+        ansiblePlaybook(credentialsId: 'private-key', disableHostKeyChecking: true, installation: 'ansible', inventory: 'inventory/${inventory}', playbook: 'playbooks/site.yaml')
       }
-    }
-    stage('Deploy') {
-      steps {
-        script {
-          sh 'echo "Deploying Stage"'
-        }
-      }
-    }
-    stage('Clean up') {
-      steps {
-        script {
-          sh 'echo "Cleaning up Stage"'
-        }
-      }
-    }
-    }
-}
-
+     }
+    } 
+     
+            
+     
+      
